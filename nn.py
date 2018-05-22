@@ -106,6 +106,7 @@ class NeuralNetwork:
             # print('\ntrain_y:\n', self.train_y)
             self.train(10000)
             input_layer_output, hidden_layer1_output = self.forward_prop(self.train_x)
+            hidden_layer1_output = utils.classify(hidden_layer1_output)
             print('hidden_layer1_output:', hidden_layer1_output)
 
 
