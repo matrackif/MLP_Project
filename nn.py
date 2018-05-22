@@ -96,7 +96,7 @@ class NeuralNetwork:
             print('\ntrain_y:\n', self.train_y)
             print('\ntest_x:\n', self.test_x)
             print('\ntest_y:\n', self.test_y)
-
+            # http://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.OneHotEncoder.html
             enc = OneHotEncoder()
             enc.fit(self.train_y)
             # print('HOT:', enc.n_values_)
