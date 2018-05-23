@@ -7,6 +7,7 @@ if __name__ == "__main__":
 
     # Seed the random number generator
     random.seed(1)
+    neural_network = NeuralNetwork(data_source=DataSource.WINE)
 
     # Create layer 1 (4 neurons, each with 3 inputs)
     # layer1 = NeuronLayer(4, 3)
@@ -15,7 +16,6 @@ if __name__ == "__main__":
     # layer2 = NeuronLayer(1, 4)
 
     # Combine the layers to create a neural network
-    neural_network = NeuralNetwork(data_source=DataSource.WINE)
 
     # print("Stage 1) Random starting synaptic weights: ")
     # neural_network.print_weights()

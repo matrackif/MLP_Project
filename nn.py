@@ -1,6 +1,7 @@
 from numpy import exp, array, random, dot, extract
 from enum import Enum
 from sklearn.preprocessing import OneHotEncoder
+#from sklearn.preprocessing import CategoricalEncoder
 import utils
 import numpy
 import pandas
@@ -23,6 +24,8 @@ class NeuralNetwork:
         self.hidden_layer1 = None
         self.hidden_layer2 = None
         self.output_layer = None
+        self.means = None
+        self.standard_deviations = None
         self.file = ''
         self.data_source = data_source
         if self.data_source == DataSource.WINE:
@@ -39,7 +42,7 @@ class NeuralNetwork:
         self.train_percentage = 0.8
         self.train_count = int(self.train_percentage * self.nrows)
         if self.data_source == DataSource.WINE:
-            utils.normalize(self.values[:, 1:])
+            self.means, self. standard_deviations = utils.normalize(self.values[:, 1:])
             print('self.values:\n', self.values)
             self.input_layer = NeuronLayer(20, 13)
             self.hidden_layer1 = NeuronLayer(3, 20)
@@ -99,17 +102,32 @@ class NeuralNetwork:
             # http://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.OneHotEncoder.html
             enc = OneHotEncoder()
             enc.fit(self.train_y)
-            # print('HOT:', enc.n_values_)
-            # print('HOT2:', enc.transform([[4]]).toarray())
             self.train_y = enc.transform(self.train_y).toarray()
             self.test_y = enc.transform(self.test_y).toarray()
-            # print('\ntrain_y:\n', self.train_y)
             self.train(10000)
             input_layer_output, hidden_layer1_output = self.forward_prop(self.train_x)
             hidden_layer1_output = utils.classify(hidden_layer1_output)
-            print('hidden_layer1_output:', hidden_layer1_output)
-
-
+            num_matches = 0
+            train_count = self.train_y.shape[0]
+            test_count = self.test_y.shape[0]
+            for i in range(train_count):
+                if (hidden_layer1_output[i] == self.train_y[i]).all():
+                    num_matches += 1
+            print('Training set performance:', float(num_matches) / float(train_count))
+            num_matches = 0
+            input_layer_output, hidden_layer1_output = self.forward_prop(self.test_x)
+            hidden_layer1_output = utils.classify(hidden_layer1_output)
+            print('hidden_layer1_output',hidden_layer1_output)
+            print('self.test_y', self.test_y)
+            for i in range(test_count):
+                if (hidden_layer1_output[i].all() == self.test_y[i].all()).all():
+                    num_matches += 1
+            print('Test set performance:', float(num_matches) / float(test_count))
+            self.normalize_and_classify(array([[14.13, 4.1, 2.74, 24.5, 96, 2.05, .76, .56, 1.35, 9.2, .61, 1.6, 560]]))
+        elif self.data_source == DataSource.MUSHROOMS:
+            pass
+        elif self.data_source == DataSource.FLAGS:
+            pass
 
     # The Sigmoid function, which describes an S shaped curve.
     # We pass the weighted sum of the inputs through this function to
@@ -153,6 +171,15 @@ class NeuralNetwork:
         output_from_layer1 = self.sigmoid(dot(inputs, self.input_layer.synaptic_weights))
         output_from_layer2 = self.sigmoid(dot(output_from_layer1, self.hidden_layer1.synaptic_weights))
         return output_from_layer1, output_from_layer2
+
+    def normalize_and_classify(self, input_x):
+        # call only after training
+        for i in range(input_x.shape[1]):
+            input_x[:, i] = (input_x[:, i] - self.means[i]) / self.standard_deviations[i]
+
+        input_layer_output, hidden_layer1_output = self.forward_prop(input_x)
+        hidden_layer1_output = utils.classify(hidden_layer1_output)
+        print('normalize_and_classify() result:\n', hidden_layer1_output)
 
     # The neural network prints its weights
     def print_weights(self):

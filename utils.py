@@ -10,6 +10,7 @@ def normalize(input: numpy.array):
         standard_deviations[i] = numpy.std(input[:, i])
         print('For col', i, 'mean is', means[i], 'and std is', standard_deviations[i])
         input[:, i] = (input[:, i] - means[i]) / standard_deviations[i]
+    return means, standard_deviations
 
 
 def classify(result: numpy.array):
