@@ -15,51 +15,25 @@ class WineData:
         self.train_percentage = 0.8
         self.train_count = int(self.train_percentage * self.nrows)
         self.means, self.standard_deviations = utils.normalize(self.values[:, 1:])
-        print('self.values:\n', self.values)
-
-        self.reg1 = self.values[self.values[:, 0] == 1]
-        self.reg2 = self.values[self.values[:, 0] == 2]
-        self.reg3 = self.values[self.values[:, 0] == 3]
-
-        reg1_train_count = int(self.train_percentage * self.reg1.shape[0])
-        reg2_train_count = int(self.train_percentage * self.reg2.shape[0])
-        reg3_train_count = int(self.train_percentage * self.reg3.shape[0])
-
-        self.train_x_reg1 = self.reg1[:reg1_train_count, 1:]
-        self.train_x_reg2 = self.reg2[:reg2_train_count, 1:]
-        self.train_x_reg3 = self.reg3[:reg3_train_count, 1:]
-
-        self.train_y_reg1 = self.reg1[:reg1_train_count, 0].reshape(-1, 1)
-        self.train_y_reg2 = self.reg2[:reg2_train_count, 0].reshape(-1, 1)
-        self.train_y_reg3 = self.reg3[:reg3_train_count, 0].reshape(-1, 1)
-
-        self.test_x_reg1 = self.reg1[reg1_train_count:, 1:]
-        self.test_x_reg2 = self.reg2[reg2_train_count:, 1:]
-        self.test_x_reg3 = self.reg3[reg3_train_count:, 1:]
-
-        self.test_y_reg1 = self.reg1[reg1_train_count:, 0].reshape(-1, 1)
-        self.test_y_reg2 = self.reg2[reg2_train_count:, 0].reshape(-1, 1)
-        self.test_y_reg3 = self.reg3[reg3_train_count:, 0].reshape(-1, 1)
-
-        self.train_x = numpy.empty((0, self.train_x_reg1.shape[1]))
-        self.train_x = numpy.append(self.train_x, self.train_x_reg1, axis=0)
-        self.train_x = numpy.append(self.train_x, self.train_x_reg2, axis=0)
-        self.train_x = numpy.append(self.train_x, self.train_x_reg3, axis=0)
-
+        # print('self.values:\n', self.values)
+        REGION_COUNT = 3
+        NUM_FEATURES = 13
+        self.train_x = numpy.empty((0, NUM_FEATURES))
         self.train_y = numpy.empty((0, 1))
-        self.train_y = numpy.append(self.train_y, self.train_y_reg1, axis=0)
-        self.train_y = numpy.append(self.train_y, self.train_y_reg2, axis=0)
-        self.train_y = numpy.append(self.train_y, self.train_y_reg3, axis=0)
-
-        self.test_x = numpy.empty((0, self.test_x_reg1.shape[1]))
-        self.test_x = numpy.append(self.test_x, self.test_x_reg1, axis=0)
-        self.test_x = numpy.append(self.test_x, self.test_x_reg2, axis=0)
-        self.test_x = numpy.append(self.test_x, self.test_x_reg3, axis=0)
-
+        self.test_x = numpy.empty((0, NUM_FEATURES))
         self.test_y = numpy.empty((0, 1))
-        self.test_y = numpy.append(self.test_y, self.test_y_reg1, axis=0)
-        self.test_y = numpy.append(self.test_y, self.test_y_reg2, axis=0)
-        self.test_y = numpy.append(self.test_y, self.test_y_reg3, axis=0)
+
+        for i in range(REGION_COUNT):
+            reg = self.values[self.values[:, 0] == i + 1]
+            tr_count = int(self.train_percentage * reg.shape[0])
+            tr_x = reg[:tr_count, 1:]
+            tr_y = reg[:tr_count, 0].reshape(-1, 1)
+            te_x = reg[tr_count:, 1:]
+            te_y = reg[tr_count:, 0].reshape(-1, 1)
+            self.train_x = numpy.append(self.train_x, tr_x, axis=0)
+            self.train_y = numpy.append(self.train_y, tr_y, axis=0)
+            self.test_x = numpy.append(self.test_x, te_x, axis=0)
+            self.test_y = numpy.append(self.test_y, te_y, axis=0)
 
         self.train_count = self.train_x.shape[0]
         self.test_count = self.test_x.shape[0]

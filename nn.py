@@ -33,7 +33,7 @@ class NeuralNetwork:
             self.data = wine_data.WineData()
             self.layers.append(NeuronLayer(10, 13))
             self.layers.append(NeuronLayer(3, 10))
-            self.train(10000)
+            self.train(1000)
             self.train_output = self.forward_prop(self.data.train_x)
             classified__tr_output = utils.classify(self.train_output[-1])
             num_tr_matches = 0
@@ -93,10 +93,12 @@ class NeuralNetwork:
             cur_input = output
         return outputs
 
+    # Use utils.classify() if data is categorical and does not need to ve normalized
     def normalize_and_classify(self, input_x):
         # call only after training
-        for i in range(input_x.shape[1]):
-            input_x[:, i] = (input_x[:, i] - self.data.means[i]) / self.data.standard_deviations[i]
+        if self.data_source == DataSource.WINE:
+            for i in range(input_x.shape[1]):
+                input_x[:, i] = (input_x[:, i] - self.data.means[i]) / self.data.standard_deviations[i]
 
         outputs = self.forward_prop(input_x)
         classified_output = utils.classify(outputs[-1])
