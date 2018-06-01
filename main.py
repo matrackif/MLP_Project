@@ -7,7 +7,7 @@ if __name__ == "__main__":
 
     # Seed the random number generator
     random.seed(1)
-    neural_network = NeuralNetwork(data_source=DataSource.WINE)
+    neural_network = NeuralNetwork(data_source=DataSource.MUSHROOMS)
 
     # Create layer 1 (4 neurons, each with 3 inputs)
     # layer1 = NeuronLayer(4, 3)

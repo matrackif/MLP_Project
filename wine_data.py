@@ -3,6 +3,9 @@ import utils
 import numpy
 from sklearn.preprocessing import OneHotEncoder
 
+REGION_COUNT = 3
+NUM_FEATURES = 13
+
 
 class WineData:
     def __init__(self):
@@ -11,13 +14,12 @@ class WineData:
         self.values = self.data.values
         self.nrows = self.values.shape[0]
         self.ncols = self.values.shape[1]
-        print('Data:\n', self.data.head(), 'Num Rows:', self.nrows, 'Num Cols:', self.ncols)
+        print('Wine Data:\n', self.data.head(), 'Num Rows:', self.nrows, 'Num Cols:', self.ncols)
         self.train_percentage = 0.8
         self.train_count = int(self.train_percentage * self.nrows)
         self.means, self.standard_deviations = utils.normalize(self.values[:, 1:])
         # print('self.values:\n', self.values)
-        REGION_COUNT = 3
-        NUM_FEATURES = 13
+
         self.train_x = numpy.empty((0, NUM_FEATURES))
         self.train_y = numpy.empty((0, 1))
         self.test_x = numpy.empty((0, NUM_FEATURES))

@@ -54,7 +54,7 @@ class NeuralNetwork:
             print('Training set performance:', float(num_tr_matches) / float(classified__tr_output.shape[0]))
             print('Test set performance:', float(num_te_matches) / float(classified_te_output.shape[0]))
         elif self.data_source == DataSource.MUSHROOMS:
-            pass
+            self.data = mushrooms_data.MushroomData()
         elif self.data_source == DataSource.FLAGS:
             pass
 
