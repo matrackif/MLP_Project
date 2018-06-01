@@ -34,7 +34,6 @@ class NeuralNetwork:
             self.layers.append(NeuronLayer(10, 13))
             self.layers.append(NeuronLayer(3, 10))
             self.train(10000)
-            # input_layer_output, hidden_layer1_output = self.forward_prop(self.data.train_x)
             self.train_output = self.forward_prop(self.data.train_x)
             classified__tr_output = utils.classify(self.train_output[-1])
             num_tr_matches = 0
@@ -43,16 +42,13 @@ class NeuralNetwork:
                 if (classified__tr_output[i] == self.data.train_y[i]).all():
                     num_tr_matches += 1
 
-            num_matches = 0
             self.test_output = self.forward_prop(self.data.test_x)
             classified_te_output = utils.classify(self.test_output[-1])
-            # print('Training output: ', classified_te_output)
-            # print('self.test_y', self.data.test_y)
             for i in range(self.data.test_count):
                 if (classified_te_output[i] == self.data.test_y[i]).all():
                     num_te_matches += 1
 
-            # self.normalize_and_classify(array([[14.13, 4.1, 2.74, 24.5, 96, 2.05, .76, .56, 1.35, 9.2, .61, 1.6, 560]]))
+            self.normalize_and_classify(array([[14.13, 1, 2.74, 15, 110, 2.05, 3, .3, 2, 5, 1, 3, 1000]]))
             print('Training set count:', classified__tr_output.shape[0], 'Number of matches:', num_tr_matches)
             print('Test set count:', classified_te_output.shape[0], 'Number of matches:', num_te_matches)
             print('Training set performance:', float(num_tr_matches) / float(classified__tr_output.shape[0]))
@@ -62,16 +58,10 @@ class NeuralNetwork:
         elif self.data_source == DataSource.FLAGS:
             pass
 
-    # The Sigmoid function, which describes an S shaped curve.
-    # We pass the weighted sum of the inputs through this function to
-    # normalise them between 0 and 1.
     def sigmoid(self, x):
         return 1 / (1 + exp(-x))
         # return .5 * (1 + numpy.tanh(.5 * x))
 
-    # The derivative of the Sigmoid function.
-    # This is the gradient of the Sigmoid curve.
-    # It indicates how confident we are about the existing weight.
     def sigmoid_derivative(self, x):
         return self.sigmoid(x) * (1 - self.sigmoid(x))
 
@@ -80,7 +70,6 @@ class NeuralNetwork:
             self.back_prop()
 
     def back_prop(self):
-        # Pass the training set through our neural network
         outputs = [self.data.train_x]
         ret = self.forward_prop(self.data.train_x)
         for output in ret:
@@ -109,11 +98,10 @@ class NeuralNetwork:
         for i in range(input_x.shape[1]):
             input_x[:, i] = (input_x[:, i] - self.data.means[i]) / self.data.standard_deviations[i]
 
-        input_layer_output, hidden_layer1_output = self.forward_prop(input_x)
-        hidden_layer1_output = utils.classify(hidden_layer1_output)
-        print('normalize_and_classify() result:\n', hidden_layer1_output)
+        outputs = self.forward_prop(input_x)
+        classified_output = utils.classify(outputs[-1])
+        print('normalize_and_classify() result:\n', classified_output)
 
-    # The neural network prints its weights
     def print_weights(self):
         for i in range(len(self.layers)):
             print('Weights of layer', i, ':\n', self.layers[i].weights)
