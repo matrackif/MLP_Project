@@ -10,6 +10,7 @@ NUM_FEATURES = 13
 class WineData:
     def __init__(self):
         self.file = 'wine.txt'
+        self.name = 'Wine'
         self.data = pandas.read_csv(self.file)
         self.values = self.data.values
         self.nrows = self.values.shape[0]
