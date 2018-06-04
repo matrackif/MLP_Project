@@ -1,38 +1,23 @@
 from numpy import exp, array, random, dot
 from nn import NeuralNetwork, NeuronLayer
 from nn import DataSource
-
+from argparse import ArgumentParser
 
 if __name__ == "__main__":
 
     # Seed the random number generator
     random.seed(1)
-    neural_network = NeuralNetwork(data_source=DataSource.MUSHROOMS)
-
-    # Create layer 1 (4 neurons, each with 3 inputs)
-    # layer1 = NeuronLayer(4, 3)
-
-    # Create layer 2 (a single neuron with 4 inputs)
-    # layer2 = NeuronLayer(1, 4)
-
-    # Combine the layers to create a neural network
-
-    # print("Stage 1) Random starting synaptic weights: ")
-    # neural_network.print_weights()
-
-    # The training set. We have 7 examples, each consisting of 3 input values
-    # and 1 output value.
-    # training_set_inputs = array([[0, 0, 1], [0, 1, 1], [1, 0, 1], [0, 1, 0], [1, 0, 0], [1, 1, 1], [0, 0, 0]])
-    # training_set_outputs = array([[0, 1, 1, 1, 1, 0, 0]]).T
-
-    # Train the neural network using the training set.
-    # Do it 60,000 times and make small adjustments each time.
-    # neural_network.train(training_set_inputs, training_set_outputs, 60000)
-
-    # print("Stage 2) New synaptic weights after training: ")
-    # neural_network.print_weights()
-
-    # Test the neural network with a new situation.
-    # print("Stage 3) Considering a new situation [1, 1, 0] -> ?: ")
-    # hidden_state, output = neural_network.forward_prop(array([1, 1, 0]))
-    # print(output)
+    arg_parser = ArgumentParser()
+    arg_parser.add_argument('-w', action='store_true', default=False, help='Train wine data model and print results')
+    arg_parser.add_argument('-m', action='store_true', default=False,
+                            help='Train mushroom data model and print results')
+    arg_parser.add_argument('-f', action='store_true', default=False, help='Train flag data model and print results')
+    arg_parser.add_argument('-n', type=int, default=100, help='Number of training iterations (of back propagation)')
+    args = vars(arg_parser.parse_args())
+    print('Command line args:', args)
+    if args['w']:
+        neural_network = NeuralNetwork(data_source=DataSource.WINE, num_iters=args['n'])
+    if args['m']:
+        neural_network = NeuralNetwork(data_source=DataSource.MUSHROOMS, num_iters=args['n'])
+    if args['f']:
+        neural_network = NeuralNetwork(data_source=DataSource.FLAGS, num_iters=args['n'])
