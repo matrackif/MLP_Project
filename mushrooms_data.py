@@ -253,10 +253,6 @@ class MushroomData:
             self.test_x = numpy.append(self.test_x, te_x, axis=0)
             self.test_y = numpy.append(self.test_y, te_y, axis=0)
 
-        print('train_x rows:', self.train_x.shape[0], 'train_x cols:', self.train_x.shape[1])
-        print('train_y rows:', self.train_y.shape[0], 'train_y cols:', self.train_y.shape[1])
-        print('test_x rows:', self.test_x.shape[0], 'test_x cols:', self.test_x.shape[1])
-        print('test_y rows:', self.test_y.shape[0], 'test_y cols:', self.test_y.shape[1])
         """
         print('train_x rows:', self.train_x.shape[0], 'train_x cols:', self.train_x.shape[1])
         print('train_y rows:', self.train_y.shape[0], 'train_y cols:', self.train_y.shape[1])
@@ -277,13 +273,3 @@ class MushroomData:
         self.encoder_x.fit(numpy.append(self.train_x, self.test_x, axis=0))
         self.train_x = self.encoder_x.transform(self.train_x).toarray()
         self.test_x = self.encoder_x.transform(self.test_x).toarray()
-
-        print('train_x rows:', self.train_x.shape[0], 'train_x cols:', self.train_x.shape[1])
-        print('train_y rows:', self.train_y.shape[0], 'train_y cols:', self.train_y.shape[1])
-        print('test_x rows:', self.test_x.shape[0], 'test_x cols:', self.test_x.shape[1])
-        print('test_y rows:', self.test_y.shape[0], 'test_y cols:', self.test_y.shape[1])
-        print('\ntrain_x:\n', self.train_x[0])
-
-        # print('\ntrain_y:\n', self.train_y)
-        # print('\ntest_x:\n', self.test_x)
-        # print('\ntest_y:\n', self.test_y)

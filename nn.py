@@ -47,7 +47,6 @@ class NeuralNetwork:
             self.run()
         elif self.data_source == DataSource.FLAGS:
             self.data = flags_data.FlagData()
-            self.train_flag_data()
 
     def sigmoid(self, x):
         return 1 / (1 + exp(-x))
