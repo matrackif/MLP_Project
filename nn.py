@@ -145,7 +145,7 @@ class NeuralNetwork:
             te_performances.append(te_p)
 
         plt.figure(0)
-        plt.title('Training performance with ' + str(self.num_hidden_layers) + ' hidden layer(s) on the ' + self.data.name + ' data set')
+        plt.title('Training performance with ' + str(self.num_hidden_layers) + ' hidden layer(s) on the ' + self.data.name + ' data set. \nHidden layer size: ' + str(self.hidden_layer_size))
         plt.xlabel('Number of training iterations')
         plt.ylabel('Percentage of correct predictions')
         tr_graph, = plt.plot(iters_list, tr_performances, label='Training set')
