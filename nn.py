@@ -1,12 +1,8 @@
 from numpy import exp, array, random, dot, extract
 from enum import Enum
-from sklearn.preprocessing import OneHotEncoder
-#from sklearn.preprocessing import CategoricalEncoder
-import utils
 import wine_data, mushrooms_data, flags_data
-import numpy
-import pandas
-
+from matplotlib import pyplot as plt
+import utils
 
 class DataSource(Enum):
     WINE = 1
@@ -20,10 +16,8 @@ class NeuronLayer:
 
 
 class NeuralNetwork:
-    def __init__(self, data_source: DataSource = DataSource.WINE, num_iters: int = 100):
+    def __init__(self, data_source: DataSource, num_iters: int, num_hidden_layers: int, hidden_layer_size: int, num_test_intervals: int, run_tests: bool):
         self.input_layer = None
-        self.hidden_layer1 = None
-        self.hidden_layer2 = None
         self.output_layer = None
         self.train_output = None
         self.test_output = None
@@ -32,21 +26,21 @@ class NeuralNetwork:
         self.data_name = ''
         self.layers = []
         self.num_iters = num_iters
+        self.num_hidden_layers = num_hidden_layers
+        self.hidden_layer_size = hidden_layer_size
+        self.num_test_intervals = num_test_intervals
+        self.run_tests = run_tests
 
-        hidden_layer1_size = 10
         if self.data_source == DataSource.WINE:
             self.data = wine_data.WineData()
-            self.layers.append(NeuronLayer(hidden_layer1_size, wine_data.NUM_FEATURES))
-            self.layers.append(NeuronLayer(wine_data.REGION_COUNT, hidden_layer1_size))
-            self.run()
-            self.classify(array([[14.13, 1, 2.74, 15, 110, 2.05, 3, .3, 2, 5, 1, 3, 1000]]))
         elif self.data_source == DataSource.MUSHROOMS:
             self.data = mushrooms_data.MushroomData()
-            self.layers.append(NeuronLayer(hidden_layer1_size, self.data.train_x.shape[1]))
-            self.layers.append(NeuronLayer(mushrooms_data.CLASS_COUNT, hidden_layer1_size))
-            self.run()
         elif self.data_source == DataSource.FLAGS:
             self.data = flags_data.FlagData()
+        if self.run_tests:
+            self.test_number_of_training_iterations()
+        else:
+            self.run(self.num_iters)
 
     def sigmoid(self, x):
         return 1 / (1 + exp(-x))
@@ -55,8 +49,8 @@ class NeuralNetwork:
     def sigmoid_derivative(self, x):
         return self.sigmoid(x) * (1 - self.sigmoid(x))
 
-    def train(self):
-        for iteration in range(self.num_iters):
+    def train(self, num_iters:int = 0):
+        for iteration in range(num_iters):
             self.back_prop()
 
     def back_prop(self):
@@ -83,7 +77,6 @@ class NeuralNetwork:
             cur_input = output
         return outputs
 
-    # Use utils.classify() if data is categorical and does not need to ve normalized
     def classify(self, input_x):
         # call only after training
         if self.data_source == DataSource.WINE:
@@ -91,12 +84,13 @@ class NeuralNetwork:
                 input_x[:, i] = (input_x[:, i] - self.data.means[i]) / self.data.standard_deviations[i]
 
         outputs = self.forward_prop(input_x)
+        print('len(outputs):', len(outputs))
         classified_output = utils.classify(outputs[-1])
-
         print(self.data.name, 'classify() result:\n', classified_output, '\nGiven input:\n', input_x)
 
-    def run(self):
-        self.train()
+    def run(self, num_iters: int = 0):
+        self.add_layers()
+        self.train(num_iters)
         self.train_output = self.forward_prop(self.data.train_x)
         classified__tr_output = utils.classify(self.train_output[-1])
         num_tr_matches = 0
@@ -110,12 +104,51 @@ class NeuralNetwork:
         for i in range(self.data.test_x.shape[0]):
             if (classified_te_output[i] == self.data.test_y[i]).all():
                 num_te_matches += 1
-
+        train_perf = float(num_tr_matches) / float(classified__tr_output.shape[0]) * 100
+        test_perf = float(num_te_matches) / float(classified_te_output.shape[0]) * 100
         print(self.data.name, 'Training set count:', classified__tr_output.shape[0], 'Number of matches:', num_tr_matches)
         print(self.data.name, 'Test set count:', classified_te_output.shape[0], 'Number of matches:', num_te_matches)
-        print(self.data.name, 'Training set performance:', float(num_tr_matches) / float(classified__tr_output.shape[0]))
-        print(self.data.name, 'Test set performance:', float(num_te_matches) / float(classified_te_output.shape[0]))
+        print(self.data.name, 'Training set performance:', train_perf, '%')
+        print(self.data.name, 'Test set performance:', test_perf, '%')
+        return train_perf, test_perf
+
+    def add_layers(self):
+        self.layers = []
+        self.layers.append(NeuronLayer(self.hidden_layer_size, self.data.train_x.shape[1]))
+        for i in range(self.num_hidden_layers):
+            if i == self.num_hidden_layers - 1:
+                self.layers.append(NeuronLayer(self.data.num_classes, self.hidden_layer_size))
+            else:
+                self.layers.append(NeuronLayer(self.hidden_layer_size, self.hidden_layer_size))
 
     def print_weights(self):
         for i in range(len(self.layers)):
             print('Weights of layer', i, ':\n', self.layers[i].weights)
+
+    def test_number_of_training_iterations(self):
+        iters_list = []
+        interval_length = self.num_iters / self.num_test_intervals
+        k = int(interval_length)
+        while k <= self.num_iters:
+            iters_list.append(int(k))
+            k += interval_length
+        if len(iters_list) != self.num_test_intervals:
+            iters_list.append(self.num_iters)
+        print('Will test NN error with following number of iterations:', iters_list)
+
+        tr_performances = []
+        te_performances = []
+
+        for n in iters_list:
+            tr_p, te_p = self.run(n)
+            tr_performances.append(tr_p)
+            te_performances.append(te_p)
+
+        plt.figure(0)
+        plt.title('Training performance with ' + str(self.num_hidden_layers) + ' hidden layer(s) on the ' + self.data.name + ' data set')
+        plt.xlabel('Number of training iterations')
+        plt.ylabel('Percentage of correct predictions')
+        tr_graph, = plt.plot(iters_list, tr_performances, label='Training set')
+        te_graph, = plt.plot(iters_list, te_performances, label='Test set')
+        plt.legend(handles=[tr_graph, te_graph])
+        plt.show()

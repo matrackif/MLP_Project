@@ -15,6 +15,7 @@ class WineData:
         self.values = self.data.values
         self.nrows = self.values.shape[0]
         self.ncols = self.values.shape[1]
+        self.num_classes = 3
         print('Wine Data:\n', self.data.head(), 'Num Rows:', self.nrows, 'Num Cols:', self.ncols)
         self.train_percentage = 0.8
         self.train_count = int(self.train_percentage * self.nrows)
