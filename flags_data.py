@@ -16,7 +16,7 @@ class FlagData:
         self.ncols = self.values.shape[1]
         self.num_classes = 8
         print('Wine Data:\n', self.data.head(), 'Num Rows:', self.nrows, 'Num Cols:', self.ncols)
-        self.train_percentage = 0.8
+        self.train_percentage = 0.9
         self.train_count = int(self.train_percentage * self.nrows)
         self.num_classes = 8
         feature_indices = [1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
